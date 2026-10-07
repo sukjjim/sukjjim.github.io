@@ -4,5 +4,24 @@
   "instagram": "",
   "youtube": "https://youtube.com/@sukjjim",
   "updated": "2026-10-07",
-  "deals": []
+  "deals": [
+    {
+      "id": 1,
+      "slug": "ganghwa-poolvilla",
+      "name": "강화도 플로망스 풀빌라",
+      "region": "강화도",
+      "platform": "coupang",
+      "url": "https://link.coupang.com/a/hFgST7EWm4",
+      "price": "",
+      "price_checked": "",
+      "tags": [
+        "오션뷰",
+        "풀빌라",
+        "노을"
+      ],
+      "img": "img/ganghwa-poolvilla.jpg",
+      "video": "",
+      "added": "2026-10-07"
+    }
+  ]
 }

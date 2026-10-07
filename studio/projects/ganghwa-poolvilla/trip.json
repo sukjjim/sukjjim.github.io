@@ -1,0 +1,83 @@
+{
+  "slug": "ganghwa-poolvilla",
+  "platform": "coupang",
+  "link": "https://link.coupang.com/a/hFgST7EWm4",
+  "name": "강화도 플로망스 풀빌라",
+  "region": "강화도",
+  "tags": [
+    "오션뷰",
+    "풀빌라",
+    "노을"
+  ],
+  "hook": [
+    "이 노을,",
+    "강화도라고요?"
+  ],
+  "dm_keyword": "*",
+  "points": [
+    "바다 노을이 그대로 보이는 언덕 위 풀빌라",
+    "탁 트인 야외 수영장",
+    "노을 보며 쉬는 테라스",
+    "소나무 사이 바다 보이는 그네 자리"
+  ],
+  "shots": [
+    {
+      "clip": "photos/ocean.mp4",
+      "start": 0.8,
+      "line": "이 노을이 강화도라는 거, 믿어지세요?"
+    },
+    {
+      "img": "photos/village.jpg",
+      "motion": "push",
+      "line": "바다 앞 언덕에 숨어 있는 풀빌라예요"
+    },
+    {
+      "clip": "photos/pool.mp4",
+      "start": 0.8,
+      "line": "탁 트인 수영장에서 물놀이하고"
+    },
+    {
+      "img": "photos/deck_sunset.jpg",
+      "motion": "push",
+      "line": "해 질 녘엔 테라스에서 노을을 보고"
+    },
+    {
+      "clip": "photos/pool.mp4",
+      "start": 4.6,
+      "zoom": 1.45,
+      "focus": [
+        0.5,
+        0.15
+      ],
+      "line": "물소리 들으며 그냥 쉬기만 해도 좋아요"
+    },
+    {
+      "img": "photos/pine_deck.jpg",
+      "motion": "right",
+      "line": "소나무 사이로 바다가 보이는 그네 자리까지"
+    },
+    {
+      "clip": "photos/ocean.mp4",
+      "start": 4.8,
+      "zoom": 1.5,
+      "focus": [
+        0.5,
+        0.9
+      ],
+      "line": "어딘지 궁금하면, 하루가 찜해 둔 링크에서 확인하세요"
+    }
+  ],
+  "credit": "사진·영상: 숙소 상세페이지 사진 기반 (사용 허락 확인 필요)",
+  "publish": {
+    "title": "이 노을이 강화도라고요? #강화도숙소 #풀빌라",
+    "ig_hook": "이 노을이 강화도라는 거 믿어지세요?😳",
+    "description": "바다 앞 언덕에 숨어 있는 강화도 풀빌라예요.\n수영장에서 놀다가 해 질 녘엔 테라스에서 노을까지 보는 곳이에요.",
+    "hashtags": [
+      "#강화도숙소",
+      "#풀빌라",
+      "#오션뷰숙소"
+    ]
+  },
+  "public_name": "강화도 노을 풀빌라",
+  "deal_id": 1
+}
