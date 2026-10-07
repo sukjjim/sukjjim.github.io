@@ -156,7 +156,7 @@ def end_overlay(trip, ov, fpath, t):
     a = min(1, t / .25)
     box = (60, H - 1070, W - 60, H - 470)
     d.rounded_rectangle(box, 40, fill=(10, 14, 24, int(215 * a)))
-    name = trip.get("name", "")
+    name = public_name(trip)
     stroke_text(d, (W // 2, H - 990), name, font(fit_size(d, name, fpath, 64, W - 200), fpath), stroke=0)
     if trip.get("price"):
         stroke_text(d, (W // 2, H - 890), trip["price"], font(58, fpath), fill=YELLOW, stroke=0)
@@ -261,7 +261,7 @@ def clip_frames(shot, root, secs, w=W, h=H):
     AI 영상은 처음 0.5초쯤 사진처럼 멈춰 있다가 움직이므로 start(기본 0.8초)부터 사용. 짧으면 반복"""
     start = float(shot.get("start", 0.8))
     p = subprocess.Popen(["ffmpeg", "-v", "error", "-ss", f"{start:.2f}", "-stream_loop", "-1", "-i", str(root / shot["clip"]),
-                          "-t", f"{secs:.3f}", "-an",
+                          "-t", f"{secs:.3f}", "-frames:v", str(max(1, round(secs * FPS))), "-an",
                           "-vf", clip_filter(shot, w, h, root / shot["clip"]),
                           "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], stdout=subprocess.PIPE)
     n, size = max(1, round(secs * FPS)), w * h * 3
@@ -421,6 +421,11 @@ def cmd_render_classic(trip, root, fpath=None):
             Path(s).unlink(missing_ok=True)
 
 
+def public_name(trip):
+    """영상·캡션에 보이는 이름. 숙소 이름을 숨기려면 public_name (예: "강화도 노을 풀빌라") — 실제 이름은 DM·링크 페이지에서 공개"""
+    return trip.get("public_name") or trip.get("name", "")
+
+
 def site_label(trip):
     """화면에 적을 링크 페이지 주소 (틱톡 팔로워 1천 명 전에는 프로필 링크가 없어서 주소를 직접 보여 줌)"""
     return trip.get("site_label") or re.sub(r"^https?://|/$", "", trip.get("site") or "sukjjim.github.io")
@@ -488,12 +493,12 @@ def texts(trip):
     tags = hashtags(trip)
     did = trip.get("deal_id", "?")
     site = trip.get("site") or "https://sukjjim.github.io/"
-    body = pub.get("description") or f"{trip.get('name', '')} · {trip.get('price', '')}"
+    body = pub.get("description") or f"{public_name(trip)} · {trip.get('price', '')}"
     yt = (f"[광고] {disc}\n\n{body}\n\n📍 예약 링크: 채널 프로필 링크 → {did}번\n{site}#{did}\n"
           f"💰 가격은 {trip.get('price_checked', '')} 기준이며 날짜·객실에 따라 달라집니다.\n"
           f"{trip.get('credit', '')}\n\n{' '.join(tags)}")
     ig = ig_caption(trip, ig_how(trip), disc, title, body, tags)
-    pin = f"📍 {trip.get('name', '')} 예약 링크는 채널 프로필 링크 → {did}번이에요! (광고·제휴 링크)"
+    pin = f"📍 {public_name(trip)} 예약 링크는 채널 프로필 링크 → {did}번이에요! (광고·제휴 링크)"
     tt = (f"[광고] {title}\n{tiktok_how(trip)[1]}\n(가격 {trip.get('price_checked', '')} 기준)\n{disc}\n"
           f"{' '.join(tags[:3] + ['#여행', '#숙소추천'])}")
     return title, yt, ig, pin, tt
@@ -508,7 +513,7 @@ def cmd_kit(trip, root, fpath=None):
         disc = DISCLOSURE.get(trip.get("platform"), "")
         title_, _, _, _, _ = texts(trip)
         disc_ = DISCLOSURE.get(trip.get("platform"), "")
-        body_ = trip.get("publish", {}).get("description") or f"{trip.get('name', '')} · {trip.get('price', '')}"
+        body_ = trip.get("publish", {}).get("description") or f"{public_name(trip)} · {trip.get('price', '')}"
         blocks += [("네이버 클립 캡션 (short.mp4)", ig_caption(trip, ig_how(trip, dm=False), disc_, title_, body_, hashtags(trip))),
                    ("자동 DM 설정 · 트리거", "모든 댓글 (키워드 없이)" if kw == "*" else f"키워드: {kw}"),
                    ("자동 DM 설정 · 보낼 메시지",
@@ -740,7 +745,7 @@ def cmd_voice(trip, root, fpath=None):
     secs = [max(1.6, studio.dur(a) + gap) if a else float(s.get("secs", 1.6)) for a, s in zip(audios, shots)]
     did = trip.get("deal_id", "?")
     note = f"가격 {trip.get('price_checked', '')} 기준 · 날짜에 따라 달라요" if trip.get("price") else None
-    name = trip.get("name", "")
+    name = public_name(trip)
     ends = [("short", f"{name}\n프로필 링크 {did}번")] + [(f"short_{n}", f"{name}\n{cta}") for n, cta in variants(trip)]
     jobs, last = [], len(shots) - 1
     for k, (sh, sc) in enumerate(zip(shots, secs)):
@@ -802,8 +807,8 @@ def cmd_reel(trip, root, fpath=None):
         sys.exit("인스타 스타일은 사진 2장 이상이 필요합니다")
     did = trip.get("deal_id", "?")
     note = f"가격 {trip.get('price_checked', '')} 기준 · 광고" if trip.get("price") else "광고"
-    ends = [("short", f"{trip.get('name', '')}\n프로필 링크 {did}번")] + \
-           [(f"short_{n}", f"{trip.get('name', '')}\n{cta}") for n, cta in variants(trip)]
+    ends = [("short", f"{public_name(trip)}\n프로필 링크 {did}번")] + \
+           [(f"short_{n}", f"{public_name(trip)}\n{cta}") for n, cta in variants(trip)]
     end_secs = max(2.4, plan[-1][2])
     jobs = [(trip, sh, k, text, sc, work / f"r{k:02d}.mp4", fpath, (W, H), None) for k, (sh, text, sc) in enumerate(plan[:-1])]
     for name, cta in ends:
