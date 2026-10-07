@@ -228,12 +228,31 @@ def live_frames(trip, shot, root, secs, w, h, seed=0):
     yield from photo_frames(shot, root, secs)
 
 
-def clip_filter(shot, w, h):
-    """zoom(예: 1.4) + focus([가로, 세로] 0~1) 로 같은 AI 영상에서 다른 구도(가까이)를 잘라 씀"""
+_CROPS = {}
+
+
+def detect_bars(path):
+    """AI 앱이 세로·정사각 사진을 가로 영상으로 만들면 양옆이 검은 띠 → 실제 화면 영역(crop=w:h:x:y)"""
+    path = str(path)
+    if path not in _CROPS:
+        try:
+            log = subprocess.run(["ffmpeg", "-v", "info", "-ss", "1", "-i", path, "-t", "2", "-vf", "cropdetect=24:2:0",
+                                  "-f", "null", "-"], capture_output=True, text=True).stderr
+            found = re.findall(r"crop=(\d+:\d+:\d+:\d+)", log)
+            _CROPS[path] = max(set(found), key=found.count) if found else None
+        except Exception:
+            _CROPS[path] = None
+    return _CROPS[path]
+
+
+def clip_filter(shot, w, h, path=None):
+    """zoom(예: 1.4) + focus([가로, 세로] 0~1) 로 같은 AI 영상에서 다른 구도(가까이)를 잘라 씀. 검은 띠는 자동으로 잘라냄"""
+    bars = detect_bars(path) if path else None
+    pre = f"crop={bars}," if bars else ""
     z = float(shot.get("zoom", 1.0))
     fx, fy = shot.get("focus", [.5, .5])
     zw, zh = int(w * z) // 2 * 2, int(h * z) // 2 * 2
-    return (f"fps={FPS},scale={zw}:{zh}:force_original_aspect_ratio=increase,"
+    return (f"{pre}fps={FPS},scale={zw}:{zh}:force_original_aspect_ratio=increase,"
             f"crop={w}:{h}:'(iw-{w})*{fx}':'(ih-{h})*{fy}'")
 
 
@@ -243,7 +262,7 @@ def clip_frames(shot, root, secs, w=W, h=H):
     start = float(shot.get("start", 0.8))
     p = subprocess.Popen(["ffmpeg", "-v", "error", "-ss", f"{start:.2f}", "-stream_loop", "-1", "-i", str(root / shot["clip"]),
                           "-t", f"{secs:.3f}", "-an",
-                          "-vf", clip_filter(shot, w, h),
+                          "-vf", clip_filter(shot, w, h, root / shot["clip"]),
                           "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], stdout=subprocess.PIPE)
     n, size = max(1, round(secs * FPS)), w * h * 3
     last = None
