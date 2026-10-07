@@ -79,10 +79,10 @@ def masks(rgb, d):
     return {"sky": np.clip(sky, 0, 1), "water": np.clip(water, 0, 1) * (water.mean() > 0.02), "night": night}
 
 
-def cover_crop(rgb, w, h, extra=1.10):
-    """출력 비율에 맞게 자르고, 움직일 여유(extra)만큼 크게"""
+def cover_crop(rgb, w, h, extra=1.10, extra_y=None):
+    """출력 비율에 맞게 자르고, 움직일 여유(extra: 가로, extra_y: 세로)만큼 크게"""
     import cv2
-    W, H = int(w * extra), int(h * extra)
+    W, H = int(w * extra), int(h * (extra_y or extra))
     k = max(W / rgb.shape[1], H / rgb.shape[0])
     img = cv2.resize(rgb, (math.ceil(rgb.shape[1] * k), math.ceil(rgb.shape[0] * k)), interpolation=cv2.INTER_AREA if k < 1 else cv2.INTER_CUBIC)
     y, x = (img.shape[0] - H) // 2, (img.shape[1] - W) // 2
@@ -97,6 +97,8 @@ MOVES = {
     "up": dict(zoom=.015, tx=0, ty=-.035, roll=.4),      # 위로 올라가며 드러남
     "orbit": dict(zoom=.010, tx=.030, ty=0, roll=2.0),   # 돌아가는 느낌
     "fly": dict(zoom=.20, tx=0, ty=-.010, roll=1.0),     # 드론처럼 쭉 들어감 (천장 창·복도·입구)
+    "panl": dict(zoom=.008, tx=-.16, ty=0, roll=.3),     # 가로 사진을 세로 화면에서 옆으로 훑기 (파노라마)
+    "panr": dict(zoom=.008, tx=.16, ty=0, roll=-.3),
 }
 
 
@@ -104,8 +106,8 @@ def frames(rgb, w, h, secs, move="push", fx="auto", fps=30, seed=0):
     """프레임 생성기 (RGB uint8 w×h). 일정한 속도로 '이미 움직이는 중'인 카메라 (긴 영상의 중간을 자른 느낌)"""
     import cv2
     mv = MOVES.get(move, MOVES["push"])
-    extra = 1.12 + max(mv["zoom"] * secs * .5 if move != "fly" else 0, abs(mv["tx"]) * secs) + abs(mv["roll"]) * secs * .012
-    img = cover_crop(rgb, w, h, extra)
+    base = 1.12 + (mv["zoom"] * secs * .5 if move != "fly" else 0) + abs(mv["roll"]) * secs * .012
+    img = cover_crop(rgb, w, h, base + abs(mv["tx"]) * secs * 1.1, base + abs(mv["ty"]) * secs * 1.1)
     H0, W0 = img.shape[:2]
     d = depth(img)
     m = masks(img, d) if fx != "none" else {"sky": 0, "water": 0, "night": 0}
@@ -123,6 +125,8 @@ def frames(rgb, w, h, secs, move="push", fx="auto", fps=30, seed=0):
     cx, cy = W0 / 2, H0 / 2
     px, py = xs - cx, ys - cy
     par = 0.3 + 0.7 * d  # 시차: 먼 것 0.3, 가까운 것 1.0
+    if move in ("panl", "panr"):  # 훑기: 화면 전체가 같이 움직이고 시차는 살짝만
+        par = 0.85 + 0.15 * d
     n = max(1, round(secs * fps))
     rng = np.random.default_rng(7 + seed)
     sign = 1 if rng.random() < .5 else -1  # 기울기 방향은 컷마다 다르게
@@ -139,8 +143,8 @@ def frames(rgb, w, h, secs, move="push", fx="auto", fps=30, seed=0):
         c, sn = math.cos(th), math.sin(th)
         qx, qy = px / zf, py / zf
         wob = W0 * .0012  # 손에 든 카메라처럼 아주 약한 흔들림
-        mx = cx + c * qx + sn * qy - mv["tx"] * u * W0 * par + wob * math.sin(tt * 4.1 + seed)
-        my = cy - sn * qx + c * qy - mv["ty"] * u * W0 * par + wob * math.sin(tt * 3.3 + 2 * seed)
+        mx = cx + c * qx + sn * qy - mv["tx"] * u * w * par + wob * math.sin(tt * 4.1 + seed)
+        my = cy - sn * qx + c * qy - mv["ty"] * u * w * par + wob * math.sin(tt * 3.3 + 2 * seed)
         if isinstance(sky, np.ndarray):  # 구름 흐름
             mx = mx - sky * (tt * W0 * 0.008)
         if isinstance(water, np.ndarray):  # 물결 일렁임 (가로 물결 + 느린 흐름)

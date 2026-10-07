@@ -210,14 +210,14 @@ def photo_frames(shot, root, secs):
         yield big.transform((W, H), Image.AFFINE, (1 / scale, 0, x0, 0, 1 / scale, y0), Image.BICUBIC)
 
 
-LIVE_MOVE = {"in": "push", "out": "push", "push": "push", "left": "left", "right": "right", "up": "up", "orbit": "orbit", "fly": "fly"}
+LIVE_MOVE = {"in": "push", "out": "push", "push": "push", "left": "left", "right": "right", "up": "up", "orbit": "orbit", "fly": "fly", "panl": "panl", "panr": "panr"}
 
 
 def sharp_source(root, rel):
-    """작은 사진(긴 쪽 1000px 미만)은 AI로 4배 확대해 work/ 에 보관 후 사용 (썸네일 화질 개선)"""
+    """작은 사진(짧은 쪽 1000px 미만)은 AI로 4배 확대해 work/ 에 보관 후 사용 (썸네일 화질 개선)"""
     src = root / rel
     im = Image.open(src).convert("RGB")
-    if max(im.size) >= 1000 or not animate.available():
+    if min(im.size) >= 1000 or not animate.available():  # 짧은 쪽 1000px 미만이면 확대 (가로 사진을 세로 영상에 쓰면 3배 이상 키워야 함)
         return im
     cache = root / "work" / ("x4_" + Path(rel).stem + ".png")
     if not cache.exists() or cache.stat().st_mtime < src.stat().st_mtime:
