@@ -1,0 +1,61 @@
+{
+  "sample": true,
+  "slug": "trip-sample",
+  "deal_id": 1,
+  "platform": "myrealtrip",
+  "link": "",
+  "name": "예시) 바다 앞 인피니티풀 호텔",
+  "region": "부산",
+  "price": "1박 9만원대부터",
+  "price_checked": "2026-10-07",
+  "tags": [
+    "오션뷰",
+    "인피니티풀",
+    "커플"
+  ],
+  "hook": [
+    "부산 가면",
+    "여기서 자세요"
+  ],
+  "music": "hope",
+  "voice": {
+    "gvoice": "ko-KR-Chirp3-HD-Aoede",
+    "edge": "ko-KR-SunHiNeural",
+    "rate": "+8%"
+  },
+  "shots": [
+    {
+      "img": "photos/sunset.jpg",
+      "line": "1박 9만 원대에 이 노을 실화예요?",
+      "motion": "in",
+      "tag": "객실에서 보는 노을"
+    },
+    {
+      "img": "photos/day.jpg",
+      "line": "바다랑 이어진 인피니티풀이 무료고요",
+      "tag": "투숙객 무료 수영장"
+    },
+    {
+      "img": "photos/night.jpg",
+      "line": "밤에는 광안대교 야경이 창문 가득 들어와요",
+      "motion": "up",
+      "tag": "야경 객실"
+    },
+    {
+      "img": "photos/forest.jpg",
+      "line": "주말은 금방 차니까 날짜부터 확인하세요",
+      "motion": "out"
+    }
+  ],
+  "end_shot": 0,
+  "credit": "예시 영상 · 그림은 코드로 직접 그림",
+  "publish": {
+    "title": "부산 가면 여기서 자세요, 1박 9만원대 오션뷰 #부산여행 #부산숙소",
+    "description": "노을·인피니티풀·야경을 한 번에 보는 부산 오션뷰 호텔이에요.",
+    "hashtags": [
+      "#부산여행",
+      "#부산숙소"
+    ]
+  },
+  "dm_keyword": "부산"
+}

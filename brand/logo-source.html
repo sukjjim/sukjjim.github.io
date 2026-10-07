@@ -1,0 +1,50 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+body{margin:0;background:transparent;font-family:'Noto Sans CJK KR','Noto Sans CJK JP',sans-serif}
+.box{display:inline-block;margin:10px}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute"><defs>
+ <symbol id="house" viewBox="0 0 100 100">
+  <path d="M50 12 L88 44 Q90 46 90 49.5 L90 82 Q90 89 83 89 L17 89 Q10 89 10 82 L10 49.5 Q10 46 12 44 Z" fill="currentColor"/>
+  <path d="M50 79 C35 69 29 62.5 29 55 C29 48.5 34 44 39.6 44 C44.3 44 48 46.7 50 50.4 C52 46.7 55.7 44 60.4 44 C66 44 71 48.5 71 55 C71 62.5 65 69 50 79 Z" fill="var(--heart)"/>
+ </symbol>
+</defs></svg>
+
+<!-- 1. 프로필 (아이콘만) -->
+<div class="box" id="profile" style="width:1080px;height:1080px">
+<svg viewBox="0 0 1080 1080" width="1080" height="1080">
+ <rect width="1080" height="1080" fill="#FF6B57"/>
+ <g style="--heart:#FF6B57;color:#FFF8EF"><use href="#house" x="250" y="230" width="580" height="580"/></g>
+ <path d="M792 238 a70 70 0 1 0 64 96 a56 56 0 1 1 -64 -96z" fill="#FFD25A"/>
+</svg></div>
+
+<!-- 2. 프로필 (아이콘 + 글자) -->
+<div class="box" id="profile_text" style="width:1080px;height:1080px">
+<svg viewBox="0 0 1080 1080" width="1080" height="1080">
+ <rect width="1080" height="1080" fill="#FF6B57"/>
+ <g style="--heart:#FF6B57;color:#FFF8EF"><use href="#house" x="320" y="150" width="440" height="440"/></g>
+ <path d="M742 160 a56 56 0 1 0 52 78 a45 45 0 1 1 -52 -78z" fill="#FFD25A"/>
+ <text x="540" y="800" text-anchor="middle" font-size="210" font-weight="900" fill="#FFF8EF" letter-spacing="-6">숙소찜</text>
+ <text x="540" y="935" text-anchor="middle" font-size="80" font-weight="700" fill="#FFD25A">하루</text>
+</svg></div>
+
+<!-- 3. 가로 로고 -->
+<div class="box" id="wordmark" style="width:1200px;height:400px">
+<svg viewBox="0 0 1200 400" width="1200" height="400">
+ <rect width="1200" height="400" fill="#FFF8EF"/>
+ <rect x="60" y="70" width="260" height="260" rx="64" fill="#FF6B57"/>
+ <g style="--heart:#FF6B57;color:#FFF8EF"><use href="#house" x="95" y="100" width="190" height="190"/></g>
+ <path d="M262 112 a26 26 0 1 0 24 36 a21 21 0 1 1 -24 -36z" fill="#FFD25A"/>
+ <text x="370" y="262" font-size="190" font-weight="900" fill="#1F2A44" letter-spacing="-6">숙소찜</text>
+ <rect x="985" y="152" width="170" height="92" rx="46" fill="#FF6B57"/>
+ <text x="1070" y="218" text-anchor="middle" font-size="58" font-weight="700" fill="#FFF8EF">하루</text>
+</svg></div>
+
+<!-- 4. 영상 왼쪽 위 배지 (투명 배경) -->
+<div class="box" id="badge" style="width:420px;height:170px;background:transparent">
+<svg viewBox="0 0 420 170" width="420" height="170">
+ <path d="M20 14 H390 Q406 14 406 30 V112 Q406 128 390 128 H92 L58 156 L62 128 H20 Q4 128 4 112 V30 Q4 14 20 14 Z" fill="#FFFFFF"/>
+ <g style="--heart:#FFFFFF;color:#FF6B57"><use href="#house" x="22" y="26" width="86" height="86"/></g>
+ <text x="122" y="88" font-size="62" font-weight="900" fill="#1F2A44" letter-spacing="-2">숙소찜</text>
+ <text x="330" y="88" font-size="38" font-weight="700" fill="#FF6B57">하루</text>
+</svg></div>
+</body></html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>여행 링크 모음</title>
+<meta name="description" content="영상에서 본 숙소·투어를 번호로 바로 찾는 링크 모음 (제휴 링크 포함)">
+<meta name="robots" content="index,follow">
+<link rel="icon" href="brand/favicon.png">
+<link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
+<meta property="og:image" content="brand/profile_text.png">
+<style>
+:root{
+  --bg:#F6F4EF; --card:#FFFFFF; --ink:#18181B; --mute:#6B6B73; --line:#E6E2D8;
+  --accent:#FFD640; --accent-ink:#18181B; --hl:#FFF4C2;
+  --mrt:#2B96ED; --yeogi:#F2114C; --coupang:#C2410C;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111318; --card:#1B1E26; --ink:#F1F1F3; --mute:#9A9AA5; --line:#2A2E39; --hl:#3A3417;
+  }
+}
+:root[data-theme="dark"]{--bg:#111318; --card:#1B1E26; --ink:#F1F1F3; --mute:#9A9AA5; --line:#2A2E39; --hl:#3A3417}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;line-height:1.45}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px 48px}
+.ad{font-size:12.5px;color:var(--mute);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:14px}
+.ad b{color:var(--ink)}
+header{padding:22px 0 10px;text-align:center}
+h1{font-size:22px;letter-spacing:-.02em}
+header p{color:var(--mute);font-size:14px;margin-top:4px}
+.social{display:flex;gap:8px;justify-content:center;margin-top:10px}
+.social a{font-size:13px;color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:6px 12px;text-decoration:none;background:var(--card)}
+.search{position:sticky;top:0;background:var(--bg);padding:12px 0 8px;z-index:2}
+.search input{width:100%;font-size:17px;padding:13px 14px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+.search input:focus{outline:none;border-color:var(--accent)}
+.chips{display:flex;gap:6px;margin-top:8px;overflow-x:auto}
+.chips button{flex:none;font-size:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer}
+.chips button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.list{display:grid;gap:10px;margin-top:8px}
+.card{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;scroll-margin-top:110px}
+.card.hit{background:var(--hl);border-color:var(--accent)}
+.thumb{flex:none;width:84px;height:112px;border-radius:10px;background:var(--line) center/cover no-repeat;position:relative}
+.num{position:absolute;left:6px;top:6px;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:15px;border-radius:8px;padding:2px 8px}
+.body{flex:1;min-width:0;display:flex;flex-direction:column}
+.name{font-weight:700;font-size:15.5px}
+.meta{font-size:12.5px;color:var(--mute);margin-top:2px}
+.price{font-weight:700;margin-top:4px}
+.price small{font-weight:400;color:var(--mute);font-size:11.5px}
+.go{margin-top:auto;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;font-weight:700;font-size:14.5px;border-radius:10px;padding:10px;color:#fff}
+.go.myrealtrip{background:var(--mrt)} .go.yeogi{background:var(--yeogi)} .go.coupang{background:var(--coupang)}
+.go.off{background:var(--line);color:var(--mute);pointer-events:none}
+.empty{text-align:center;color:var(--mute);padding:40px 10px;font-size:14px}
+footer{margin-top:28px;font-size:12px;color:var(--mute);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="ad" id="ad"><b>광고 · 제휴 링크 안내</b> — 이 페이지의 링크로 예약·구매하시면 판매처(마이리얼트립·여기어때·쿠팡)로부터 일정액의 수수료를 받을 수 있습니다. 가격은 표시된 확인일 기준이며 날짜·객실에 따라 달라집니다.</p>
+  <header>
+    <img src="brand/apple-touch-icon.png" alt="" width="64" height="64" style="border-radius:16px;display:block;margin:0 auto 10px">
+    <h1 id="title">여행 링크 모음</h1>
+    <p id="intro">영상에서 본 숙소·투어, 번호로 바로 찾기</p>
+    <div class="social" id="social"></div>
+  </header>
+  <div class="search">
+    <input id="q" type="search" inputmode="search" placeholder="영상 속 번호나 지역 검색 (예: 12, 부산)" autocomplete="off">
+    <div class="chips" id="chips"></div>
+  </div>
+  <div class="list" id="list"></div>
+  <footer>쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.<br>마이리얼트립·여기어때 파트너 활동으로 수수료를 받을 수 있습니다.</footer>
+</div>
+<script>
+const NAME = {myrealtrip: "마이리얼트립", yeogi: "여기어때", coupang: "쿠팡"};
+let deals = [], region = "";
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const safeUrl = u => /^https:\/\//.test(u || "") ? u : "";
+
+function card(d, hit) {
+  const url = safeUrl(d.url);
+  const img = d.img ? `style="background-image:url('${esc(d.img)}')"` : "";
+  return `<article class="card${hit ? " hit" : ""}" id="d${d.id}">
+    <div class="thumb" ${img}><span class="num">${d.id}</span></div>
+    <div class="body">
+      <div class="name">${esc(d.name)}</div>
+      <div class="meta">${esc(d.region)}${d.tags?.length ? " · " + d.tags.map(esc).join(" · ") : ""}</div>
+      ${d.price ? `<div class="price">${esc(d.price)} <small>${esc(d.price_checked)} 확인</small></div>` : ""}
+      <a class="go ${url ? esc(d.platform) : "off"}" href="${esc(url) || "#"}" target="_blank" rel="sponsored noopener">
+        ${url ? `${esc(NAME[d.platform] || "판매처")}에서 보기 →` : "링크 준비 중"}</a>
+    </div></article>`;
+}
+
+function render() {
+  const q = $("#q").value.trim();
+  const isNum = /^\d+$/.test(q);
+  const list = deals.filter(d => (!region || d.region === region) &&
+    (!q || (isNum ? String(d.id) === q : (d.name + d.region + (d.tags || []).join(" ")).includes(q))));
+  $("#list").innerHTML = list.length ? list.map(d => card(d, isNum)).join("")
+    : `<p class="empty">${deals.length ? "찾는 번호가 없어요. 영상 속 번호를 다시 확인해 주세요." : "곧 첫 번째 여행지가 올라와요."}</p>`;
+}
+
+function chips() {
+  const regions = [...new Set(deals.map(d => d.region).filter(Boolean))];
+  $("#chips").innerHTML = regions.length > 1 ? ["", ...regions].map(r =>
+    `<button class="${r === region ? "on" : ""}" data-r="${esc(r)}">${r ? esc(r) : "전체"}</button>`).join("") : "";
+}
+$("#chips").addEventListener("click", e => { if (e.target.dataset.r === undefined) return; region = e.target.dataset.r; chips(); render(); });
+$("#q").addEventListener("input", () => { history.replaceState(null, "", $("#q").value ? "#" + encodeURIComponent($("#q").value) : location.pathname); render(); });
+
+fetch("deals.json", {cache: "no-cache"}).then(r => r.json()).then(data => {
+  deals = data.deals || [];
+  if (data.site_name) { $("#title").textContent = data.site_name; document.title = data.site_name; }
+  if (data.intro) $("#intro").textContent = data.intro;
+  $("#social").innerHTML = [["youtube", "유튜브"], ["instagram", "인스타그램"]]
+    .filter(([k]) => safeUrl(data[k])).map(([k, l]) => `<a href="${esc(data[k])}" target="_blank" rel="noopener">${l}</a>`).join("");
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (h) $("#q").value = h;
+  chips(); render();
+  if (/^\d+$/.test(h)) document.getElementById("d" + h)?.scrollIntoView({block: "start"});
+}).catch(() => { $("#list").innerHTML = '<p class="empty">목록을 불러오지 못했어요. 새로고침해 주세요.</p>'; });
+</script>
+</body>
+</html>

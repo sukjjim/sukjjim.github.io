@@ -1,0 +1,7 @@
+projects/*/work/
+projects/*/output/
+projects/*/photos/
+__pycache__/
+*.pyc
+research/**/data.json
+research/**/report.md
