@@ -213,10 +213,32 @@ def photo_frames(shot, root, secs):
 LIVE_MOVE = {"in": "push", "out": "push", "push": "push", "left": "left", "right": "right", "up": "up", "orbit": "orbit", "fly": "fly"}
 
 
+def sharp_source(root, rel):
+    """작은 사진(긴 쪽 1000px 미만)은 AI로 4배 확대해 work/ 에 보관 후 사용 (썸네일 화질 개선)"""
+    src = root / rel
+    im = Image.open(src).convert("RGB")
+    if max(im.size) >= 1000 or not animate.available():
+        return im
+    cache = root / "work" / ("x4_" + Path(rel).stem + ".png")
+    if not cache.exists() or cache.stat().st_mtime < src.stat().st_mtime:
+        import upscale
+        cache.parent.mkdir(exist_ok=True)
+        print(f"  · AI 확대: {rel} ({im.width}×{im.height} → ×4)")
+        Image.fromarray(upscale.upscale(np.asarray(im))).save(cache)
+    return Image.open(cache).convert("RGB")
+
+
+def prepare_sources(root, shots):
+    """병렬 렌더링 전에 작은 사진을 미리 확대 (같은 사진을 여러 작업이 동시에 확대하지 않게)"""
+    for sh in shots:
+        if sh.get("img") and not sh.get("clip"):
+            sharp_source(root, sh["img"])
+
+
 def live_frames(trip, shot, root, secs, w, h, seed=0):
     """기본: 깊이 기반 '살아 있는 사진'. live: false 이거나 모듈이 없으면 줌·패닝"""
     if shot.get("live", trip.get("live", True)) and animate.available():
-        src = Image.open(root / shot["img"]).convert("RGB")
+        src = sharp_source(root, shot["img"])
         mo = LIVE_MOVE.get(motion_of(shot, src), "push")
         for fr in animate.frames(np.asarray(src), w, h, secs, mo, shot.get("fx", "auto"), seed=seed):
             yield Image.fromarray(fr)
@@ -252,7 +274,7 @@ def clip_filter(shot, w, h, path=None):
     z = float(shot.get("zoom", 1.0))
     fx, fy = shot.get("focus", [.5, .5])
     zw, zh = int(w * z) // 2 * 2, int(h * z) // 2 * 2
-    return (f"{pre}fps={FPS},scale={zw}:{zh}:force_original_aspect_ratio=increase,"
+    return (f"{pre}fps={FPS},scale={zw}:{zh}:force_original_aspect_ratio=increase:flags=lanczos,unsharp=5:5:0.8,"
             f"crop={w}:{h}:'(iw-{w})*{fx}':'(ih-{h})*{fy}'")
 
 
@@ -678,6 +700,7 @@ def cmd_carousel(trip, root, fpath=None):
         old.unlink()
     plan = insta_plan(trip)
     jobs = [(trip, sh, k, text, sc, outd / f"{k + 1:02d}.mp4", fpath, (CW, CH), None) for k, (sh, text, sc) in enumerate(plan)]
+    prepare_sources(root, [sh for sh, _, _ in plan])
     print(f"[인스타 묶음] {len(jobs)}장 · 4:5")
     with ProcessPoolExecutor(max(1, min(len(jobs), (os.cpu_count() or 2)))) as ex:
         outs = list(ex.map(insta_job, jobs))
@@ -757,6 +780,7 @@ def cmd_voice(trip, root, fpath=None):
             for nm, end in ends:
                 jobs.append((trip, sh, k, sc, phr, hook, end, note, work / f"v_end_{nm}.mp4", fpath))
     total = sum(secs)
+    prepare_sources(root, shots)
     print(f"[화면] 컷 {len(shots)}개 · {total:.1f}초 · 판 {len(ends)}개")
     with ProcessPoolExecutor(max(1, min(len(jobs), os.cpu_count() or 2))) as ex:
         segs = list(ex.map(voice_job, jobs))
@@ -814,6 +838,7 @@ def cmd_reel(trip, root, fpath=None):
     for name, cta in ends:
         jobs.append((trip, plan[-1][0], len(plan) - 1, cta, end_secs, work / f"r_end_{name}.mp4", fpath, (W, H), note))
     total = sum(sc for _, _, sc in plan[:-1]) + end_secs
+    prepare_sources(root, [sh for sh, _, _ in plan])
     print(f"[세로 영상] 컷 {len(plan)}개 · {total:.1f}초 · 판 {len(ends)}개")
     with ProcessPoolExecutor(max(1, min(len(jobs), os.cpu_count() or 2))) as ex:
         segs = list(ex.map(insta_job, jobs))
