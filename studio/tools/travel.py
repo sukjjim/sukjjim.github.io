@@ -228,6 +228,31 @@ def sharp_source(root, rel):
     return Image.open(cache).convert("RGB")
 
 
+def prepare_ai(root, shots):
+    """컷에 "ai": true 가 있으면 사진 → AI 영상 클립(photos/ai_<이름>.mp4)을 만들어 clip 으로 사용.
+    이미 만든 파일은 다시 만들지 않음(무료 한도 절약). 한도 초과·토큰 없음이면 움직이는 사진으로 대체"""
+    import aivideo
+    for sh in shots:
+        if not sh.get("ai") or not sh.get("img") or sh.get("clip"):
+            continue
+        rel = str(Path(sh["img"]).parent / f"ai_{Path(sh['img']).stem}.mp4")
+        if not (root / rel).exists():
+            if not aivideo.available():
+                print(f"  ! AI 영상 생략 ({sh['img']}): HF_TOKEN 또는 gradio_client 없음 → 움직이는 사진으로 대체")
+                continue
+            try:
+                print(f"  · AI 영상 만드는 중: {sh['img']} (1~3분)")
+                aivideo.generate(root / sh["img"], root / rel, sh.get("ai_prompt"), float(sh.get("ai_secs", 5.0)))
+            except aivideo.QuotaError as e:
+                print(f"  ! AI 영상 한도 초과 ({sh['img']}): {e} → 움직이는 사진으로 대체")
+                continue
+            except Exception as e:
+                print(f"  ! AI 영상 실패 ({sh['img']}): {type(e).__name__} {str(e)[:150]} → 움직이는 사진으로 대체")
+                continue
+        sh["clip"] = rel
+        sh.setdefault("start", 0.3)
+
+
 def prepare_sources(root, shots):
     """병렬 렌더링 전에 작은 사진을 미리 확대 (같은 사진을 여러 작업이 동시에 확대하지 않게)"""
     for sh in shots:
@@ -698,6 +723,7 @@ def cmd_carousel(trip, root, fpath=None):
     outd.mkdir(parents=True, exist_ok=True)
     for old in outd.glob("*.mp4"):
         old.unlink()
+    prepare_ai(root, trip.get("carousel_shots") or trip["shots"])
     plan = insta_plan(trip)
     jobs = [(trip, sh, k, text, sc, outd / f"{k + 1:02d}.mp4", fpath, (CW, CH), None) for k, (sh, text, sc) in enumerate(plan)]
     prepare_sources(root, [sh for sh, _, _ in plan])
@@ -761,6 +787,7 @@ def cmd_voice(trip, root, fpath=None):
     work.mkdir(exist_ok=True)
     outd.mkdir(exist_ok=True)
     shots = trip["shots"]
+    prepare_ai(root, shots)
     print(f"[음성] {sum(1 for s in shots if s.get('line'))}개")
     with ThreadPoolExecutor(8) as ex:
         audios = list(ex.map(lambda a: tts(trip, root, a[1]["line"], a[0]) if a[1].get("line") else None, enumerate(shots)))
@@ -826,6 +853,7 @@ def cmd_reel(trip, root, fpath=None):
     work, outd = root / "work", root / "output"
     work.mkdir(exist_ok=True)
     outd.mkdir(exist_ok=True)
+    prepare_ai(root, trip.get("carousel_shots") or trip["shots"])
     plan = insta_plan(trip)
     if len(plan) < 2:
         sys.exit("인스타 스타일은 사진 2장 이상이 필요합니다")
