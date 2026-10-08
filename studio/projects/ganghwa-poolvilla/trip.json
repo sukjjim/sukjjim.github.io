@@ -109,8 +109,9 @@
       ]
     },
     {
-      "img": "photos/w_outdoor_pool.jpg",
-      "motion": "push"
+      "clip": "photos/grok_pool.mp4",
+      "start": 1.0,
+      "secs": 2.2
     },
     {
       "img": "photos/w_pine_deck.jpg",
