@@ -240,7 +240,7 @@ def live_frames(trip, shot, root, secs, w, h, seed=0):
     if shot.get("live", trip.get("live", True)) and animate.available():
         src = sharp_source(root, shot["img"])
         mo = LIVE_MOVE.get(motion_of(shot, src), "push")
-        for fr in animate.frames(np.asarray(src), w, h, secs, mo, shot.get("fx", "auto"), seed=seed):
+        for fr in animate.frames(np.asarray(src), w, h, secs, mo, shot.get("fx", "auto"), seed=seed, focus=tuple(shot.get("focus", (.5, .5)))):
             yield Image.fromarray(fr)
         return
     if (w, h) != (W, H):  # 줌·패닝 엔진은 9:16 전용 → 잘라서 사용

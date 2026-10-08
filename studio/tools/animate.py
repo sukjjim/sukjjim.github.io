@@ -79,13 +79,13 @@ def masks(rgb, d):
     return {"sky": np.clip(sky, 0, 1), "water": np.clip(water, 0, 1) * (water.mean() > 0.02), "night": night}
 
 
-def cover_crop(rgb, w, h, extra=1.10, extra_y=None):
+def cover_crop(rgb, w, h, extra=1.10, extra_y=None, focus=(.5, .5)):
     """출력 비율에 맞게 자르고, 움직일 여유(extra: 가로, extra_y: 세로)만큼 크게"""
     import cv2
     W, H = int(w * extra), int(h * (extra_y or extra))
     k = max(W / rgb.shape[1], H / rgb.shape[0])
     img = cv2.resize(rgb, (math.ceil(rgb.shape[1] * k), math.ceil(rgb.shape[0] * k)), interpolation=cv2.INTER_AREA if k < 1 else cv2.INTER_CUBIC)
-    y, x = (img.shape[0] - H) // 2, (img.shape[1] - W) // 2
+    y, x = int((img.shape[0] - H) * focus[1]), int((img.shape[1] - W) * focus[0])  # focus: 어디를 남길지 (0~1)
     return img[y:y + H, x:x + W].copy()
 
 
@@ -102,12 +102,12 @@ MOVES = {
 }
 
 
-def frames(rgb, w, h, secs, move="push", fx="auto", fps=30, seed=0):
+def frames(rgb, w, h, secs, move="push", fx="auto", fps=30, seed=0, focus=(.5, .5)):
     """프레임 생성기 (RGB uint8 w×h). 일정한 속도로 '이미 움직이는 중'인 카메라 (긴 영상의 중간을 자른 느낌)"""
     import cv2
     mv = MOVES.get(move, MOVES["push"])
     base = 1.12 + (mv["zoom"] * secs * .5 if move != "fly" else 0) + abs(mv["roll"]) * secs * .012
-    img = cover_crop(rgb, w, h, base + abs(mv["tx"]) * secs * 1.1, base + abs(mv["ty"]) * secs * 1.1)
+    img = cover_crop(rgb, w, h, base + abs(mv["tx"]) * secs * 1.1, base + abs(mv["ty"]) * secs * 1.1, focus)
     H0, W0 = img.shape[:2]
     d = depth(img)
     m = masks(img, d) if fx != "none" else {"sky": 0, "water": 0, "night": 0}

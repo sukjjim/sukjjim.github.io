@@ -10,8 +10,8 @@
     "노을"
   ],
   "hook": [
-    "이 노을,",
-    "강화도라고요?"
+    "여기 해외 아니고",
+    "강화도입니다"
   ],
   "dm_keyword": "*",
   "points": [
@@ -80,5 +80,49 @@
     ]
   },
   "public_name": "강화도 노을 풀빌라",
-  "deal_id": 1
+  "deal_id": 1,
+  "carousel_shots": [
+    {
+      "img": "photos/w_sunset_aerial.jpg",
+      "motion": "push"
+    },
+    {
+      "img": "photos/w_villa_aerial.jpg",
+      "motion": "right",
+      "card": "바다 앞 잔디 마당에\n미끄럼틀 수영장까지"
+    },
+    {
+      "img": "photos/w_indoor_pool_sea.jpg",
+      "motion": "push",
+      "card": "실내에도\n바다 보이는 수영장",
+      "focus": [
+        0.08,
+        0.5
+      ]
+    },
+    {
+      "img": "photos/w_jacuzzi.jpg",
+      "motion": "left",
+      "focus": [
+        0.75,
+        0.5
+      ]
+    },
+    {
+      "img": "photos/w_outdoor_pool.jpg",
+      "motion": "push"
+    },
+    {
+      "img": "photos/w_pine_deck.jpg",
+      "motion": "right"
+    },
+    {
+      "img": "photos/w_village_dusk.jpg",
+      "motion": "left"
+    },
+    {
+      "img": "photos/w_lounge_sunset.jpg",
+      "motion": "push"
+    }
+  ]
 }
